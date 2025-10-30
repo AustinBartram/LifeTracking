@@ -39,6 +39,8 @@ categories.forEach(cat => {
 
       updateCategoryTotals(cat);
       updateGrandTotals();
+      updateProgressBars();
+      updateFinalBars(); // live update for final bars
     });
   });
 });
@@ -59,14 +61,16 @@ function updateCategoryTotals(cat) {
 // --- SAVINGS LIVE CALC ---
 function updateSavingsLive() {
   let addVal = parseFloat(savingsAdd.value) || 0;
-  let addPts = addVal * 0.25;
+  let addPts = addVal / 4; // 1 point per $4
   savingsAddPts.textContent = Math.round(addPts);
 
   let overspendVal = parseFloat(savingsOverspend.value) || 0;
-  let overspendPts = overspendVal * 0.5;
+  let overspendPts = overspendVal * 0.5; // 0.5 pts per $1 overspent
   savingsOverspendPts.textContent = Math.round(overspendPts);
 
   updateGrandTotals();
+  updateProgressBars();
+  updateFinalBars(); // live update for final bars
 }
 
 savingsAdd.addEventListener("input", updateSavingsLive);
@@ -83,13 +87,15 @@ function updateGrandTotals() {
     totalTime += mins;
   });
 
-  // Savings
-  let addPts = parseFloat(savingsAdd.value) || 0;
-  addPts = addPts * 0.25;
-  if (addPts >= 80) totalPts += Math.round(addPts);
+  // Savings points
+  let addVal = parseFloat(savingsAdd.value) || 0;
+  let addPts = addVal / 4; // 1 pt per $4
+  if (addPts >= 80) {
+    totalPts += Math.round(addPts - 80); // only add points above 80
+  }
 
-  let overspendPts = parseFloat(savingsOverspend.value) || 0;
-  overspendPts = overspendPts * 0.5;
+  let overspendVal = parseFloat(savingsOverspend.value) || 0;
+  let overspendPts = overspendVal * 0.5;
   totalPts -= Math.round(overspendPts);
 
   grandPointsEl.textContent = totalPts;
@@ -132,8 +138,14 @@ function updateProgressBars() {
   const readingPts = parseInt(document.querySelector('[data-cat="Reading"] .cat-points').textContent) || 0;
   const artsPts = parseInt(document.querySelector('[data-cat="Arts"] .cat-points').textContent) || 0;
   const homeworkPts = parseInt(document.querySelector('[data-cat="Homework"] .cat-points').textContent) || 0;
-  const savingsVal = parseFloat(savingsAdd.value) || 0;
-  const savingsPts = savingsVal * 0.25;
+
+  let savingsVal = parseFloat(savingsAdd.value) || 0;
+  let savingsPts = savingsVal / 4; // 1 point per $4
+  if (savingsPts >= 80) savingsPts -= 80; // only count points above 80
+
+  let overspendVal = parseFloat(savingsOverspend.value) || 0;
+  let overspendPts = overspendVal * 0.5;
+  savingsPts -= overspendPts;
 
   const totalGoal = parseFloat(document.getElementById("total-goal")?.value) || 100;
 
@@ -157,29 +169,37 @@ function updateProgressBars() {
 ["input", "change"].forEach(evt => {
   categories.forEach(cat => {
     const rows = cat.querySelectorAll("tbody tr");
-    rows.forEach(row => row.querySelector(".minutes").addEventListener(evt, updateProgressBars));
+    rows.forEach(row => row.querySelector(".minutes").addEventListener(evt, () => {
+      updateProgressBars();
+      updateFinalBars(); // also update final bars live
+    }));
   });
-  savingsAdd.addEventListener(evt, updateProgressBars);
-  savingsOverspend.addEventListener(evt, updateProgressBars);
+  savingsAdd.addEventListener(evt, () => { updateProgressBars(); updateFinalBars(); });
+  savingsOverspend.addEventListener(evt, () => { updateProgressBars(); updateFinalBars(); });
 });
 
 // Initial call
 updateProgressBars();
 
 // -------------------- FINAL GOALS TAB --------------------
-const finalPointsBars = document.querySelectorAll(".final-bar");
 function updateFinalBars() {
   const totalPts = parseInt(grandPointsEl.textContent) || 0;
-  const totalSavingsVal = parseFloat(savingsAdd.value) || 0;
-  const totalSavingsPts = totalSavingsVal * 0.25;
 
-  // example: each bar has 10 sections out of 6000
-  document.querySelectorAll(".final-bar.points").forEach(bar => {
-    bar.style.width = `${Math.min((totalPts / 6000) * 100, 100)}%`;
-  });
+  let savingsVal = parseFloat(savingsAdd.value) || 0;
+  let savingsPts = savingsVal / 4;
+  if (savingsPts >= 80) savingsPts -= 80;
+  let overspendVal = parseFloat(savingsOverspend.value) || 0;
+  let overspendPts = overspendVal * 0.5;
+  savingsPts -= overspendPts;
 
-  document.querySelectorAll(".final-bar.savings").forEach(bar => {
-    bar.style.width = `${Math.min((totalSavingsPts / 6000) * 100, 100)}%`;
-  });
+  const totalGoal = parseFloat(document.getElementById("total-goal")?.value) || 100;
+
+  document.getElementById("final-bar-points").style.width = `${Math.min((totalPts / totalGoal) * 100, 100)}%`;
+  document.getElementById("final-bar-savings").style.width = `${Math.min((savingsPts / totalGoal) * 100, 100)}%`;
 }
+
+// Initial call to set bars correctly on load
+updateFinalBars();
+
+// Keep interval as backup to catch any missed updates
 setInterval(updateFinalBars, 500);
