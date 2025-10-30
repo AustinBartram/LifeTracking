@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tracker — Enter / Progress / Final Goals</title>
   <link rel="stylesheet" href="style.css" />
+  
+  
+
 </head>
 <body>
   <header>
@@ -191,8 +194,30 @@
         </div>
       </div>
     </section>
+    
   </main>
+<!-- Firebase Initialization -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDYYcMk39AKYrx61WLxZ7CV2mdJByyWGJ8",
+    authDomain: "lifetracking-ffd80.firebaseapp.com",
+    projectId: "lifetracking-ffd80",
+    storageBucket: "lifetracking-ffd80.firebasestorage.app",
+    messagingSenderId: "302945787441",
+    appId: "1:302945787441:web:7efd4b84fc483bed0bbf10"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Make Firestore globally accessible
+  window.db = db;
+</script>
   <script src="script.js"></script>
 </body>
 </html>

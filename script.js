@@ -12,6 +12,9 @@ tabs.forEach(tab => {
   });
 });
 
+
+
+
 // -------------------- ENTER TAB --------------------
 const grandPointsEl = document.getElementById("grand-points");
 const grandTimeEl = document.getElementById("grand-time");
@@ -203,3 +206,92 @@ updateFinalBars();
 
 // Keep interval as backup to catch any missed updates
 setInterval(updateFinalBars, 500);
+
+// -------------------- FIRESTORE INTEGRATION --------------------
+// Make sure you have these imports in your HTML <script type="module">:
+// import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+const db = getFirestore();
+
+// Function to save all user data
+async function saveUserData() {
+  const user = document.querySelector("input[name=user]:checked").value;
+  const userData = {};
+
+  // Save categories
+  categories.forEach(cat => {
+    const catName = cat.dataset.cat;
+    userData[catName] = {};
+    const rows = cat.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const actName = row.dataset.act;
+      const mins = parseFloat(row.querySelector(".minutes").value) || 0;
+      const pts = parseInt(row.querySelector(".live-pts").textContent) || 0;
+      userData[catName][actName] = { minutes: mins, points: pts };
+    });
+  });
+
+  // Save savings
+  userData["Savings"] = {
+    add: parseFloat(savingsAdd.value) || 0,
+    overspend: parseFloat(savingsOverspend.value) || 0
+  };
+
+  await setDoc(doc(db, "LifeTracking", user), userData);
+}
+
+// Function to load user data
+async function loadUserData(user) {
+  const docRef = doc(db, "LifeTracking", user);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+
+    categories.forEach(cat => {
+      const catName = cat.dataset.cat;
+      if (!data[catName]) return;
+
+      const rows = cat.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const actName = row.dataset.act;
+        if (data[catName][actName]) {
+          row.querySelector(".minutes").value = data[catName][actName].minutes;
+          row.querySelector(".live-pts").textContent = data[catName][actName].points;
+        }
+      });
+      updateCategoryTotals(cat);
+    });
+
+    if (data["Savings"]) {
+      savingsAdd.value = data["Savings"].add || 0;
+      savingsOverspend.value = data["Savings"].overspend || 0;
+      updateSavingsLive();
+    }
+
+    updateGrandTotals();
+    updateProgressBars();
+    updateFinalBars();
+  }
+}
+
+// Load data when user changes
+document.querySelectorAll("input[name=user]").forEach(radio => {
+  radio.addEventListener("change", async () => {
+    const user = radio.value;
+    await loadUserData(user);
+  });
+});
+
+// Save data automatically whenever inputs change
+["input", "change"].forEach(evt => {
+  categories.forEach(cat => {
+    const rows = cat.querySelectorAll("tbody tr");
+    rows.forEach(row => row.querySelector(".minutes").addEventListener(evt, saveUserData));
+  });
+  savingsAdd.addEventListener(evt, saveUserData);
+  savingsOverspend.addEventListener(evt, saveUserData);
+});
+
+// Load initial user data
+loadUserData(document.querySelector("input[name=user]:checked").value);
