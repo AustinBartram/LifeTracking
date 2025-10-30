@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <!-- Category: Active -->
+      <!-- Categories (same as previous: Active, Reading, Arts, Homework, Savings) -->
       <div class="category card" data-cat="Active">
         <div class="cat-header">
           <h2>Active</h2>
@@ -48,7 +48,7 @@
         </table>
       </div>
 
-      <!-- Category: Reading -->
+      <!-- Reading -->
       <div class="category card" data-cat="Reading">
         <div class="cat-header">
           <h2>Reading</h2>
@@ -64,7 +64,7 @@
         </table>
       </div>
 
-      <!-- Category: Arts -->
+      <!-- Arts -->
       <div class="category card" data-cat="Arts">
         <div class="cat-header">
           <h2>Arts</h2>
@@ -79,7 +79,7 @@
         </table>
       </div>
 
-      <!-- Category: Homework -->
+      <!-- Homework -->
       <div class="category card" data-cat="Homework">
         <div class="cat-header">
           <h2>Homework</h2>
@@ -94,7 +94,7 @@
         </table>
       </div>
 
-      <!-- Savings card -->
+      <!-- Savings -->
       <div class="category card" data-cat="Savings">
         <div class="cat-header">
           <h2>Savings</h2>
@@ -121,6 +121,11 @@
     <section id="progress" class="tab-panel">
       <div class="progress-grid">
         <div class="card">
+          <h2>Set Total Goal Points</h2>
+          <label>Total Goal Points: <input type="number" id="total-goal" value="100" /></label>
+        </div>
+
+        <div class="card">
           <h2>Category Progress (selected user)</h2>
           <div class="progress-item">
             <label>Active: <span id="progress-active-val">0 pts</span></label>
@@ -138,12 +143,15 @@
             <label>Homework: <span id="progress-homework-val">0 pts</span></label>
             <div class="progress"><div class="bar" id="bar-homework" style="width:0%"></div></div>
           </div>
-        </div>
+          <div class="progress-item">
+            <label>Savings: <span id="progress-savings-val">0 pts</span></label>
+            <div class="progress"><div class="bar" id="bar-savings" style="width:0%"></div></div>
+          </div>
 
-        <div class="card">
-          <h2>Savings Progress</h2>
-          <p>Current: $<span id="progress-savings-val">0</span></p>
-          <div class="progress"><div class="bar" id="bar-savings" style="width:0%"></div></div>
+          <h3>Totals</h3>
+          <p>Total Points: <span id="final-total">0</span></p>
+          <p>Total Time: <span id="final-time">0m</span></p>
+          <p>Savings: $<span id="final-savings">0</span></p>
         </div>
       </div>
     </section>
@@ -151,10 +159,36 @@
     <!-- FINAL TAB -->
     <section id="final" class="tab-panel">
       <div class="card">
-        <h2>Final Goals / Total Points</h2>
-        <p>Total Points: <span id="final-total">0</span></p>
-        <p>Total Time: <span id="final-time">0m</span></p>
-        <p>Savings: $<span id="final-savings">0</span></p>
+        <h2>Final Goals Bars</h2>
+        <p>Points:</p>
+        <div class="progress"><div class="bar" id="final-bar-points" style="width:100%"></div></div>
+        <div class="progress compare">
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+        </div>
+
+        <p>Savings:</p>
+        <div class="progress"><div class="bar" id="final-bar-savings" style="width:100%"></div></div>
+        <div class="progress compare">
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+          <div class="compare-bar" style="width:10%"></div>
+        </div>
       </div>
     </section>
   </main>

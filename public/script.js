@@ -1,124 +1,185 @@
-// ===== STATE =====
-const state = {
-  users: {
-    Austin: { Active: {}, Reading: {}, Arts: {}, Homework: {}, savings: { current: 0, overspend: 0 } },
-    Emma: { Active: {}, Reading: {}, Arts: {}, Homework: {}, savings: { current: 0, overspend: 0 } }
-  }
-};
+// -------------------- TAB SWITCHING --------------------
+const tabs = document.querySelectorAll(".tab-btn");
+const panels = document.querySelectorAll(".tab-panel");
 
-// ===== HELPERS =====
-function parseNum(str){ return parseFloat(str)||0; }
-function getSelectedUser(){ return document.querySelector('input[name="user"]:checked').value; }
-function updateAllDisplays(){ updateCategoryTotals(); updateGrandTotals(); updateSavingsPoints(); }
-
-// ===== TABS =====
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-    document.getElementById(btn.dataset.target).classList.add('active');
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    const target = tab.dataset.target;
+    panels.forEach(panel => panel.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
   });
 });
 
-// ===== CATEGORY TABLES =====
-document.querySelectorAll('.activity-table').forEach(table => {
-  table.querySelectorAll('.minutes').forEach(input => {
-    input.addEventListener('input', () => {
-      const tr = input.closest('tr');
-      const rate = parseNum(tr.dataset.rate);
-      const mins = parseNum(input.value);
-      const pts = rate*(mins/60);
-      tr.querySelector('.live-pts').textContent = Math.round(pts);
-      updateAllDisplays();
-    });
-  });
-  table.querySelectorAll('.add').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tr = btn.closest('tr');
-      const user = getSelectedUser();
-      const cat = tr.closest('.category').dataset.cat;
-      const act = tr.dataset.act;
-      const mins = parseNum(tr.querySelector('.minutes').value);
-      const rate = parseNum(tr.dataset.rate);
-      const pts = rate*(mins/60);
-      state.users[user][cat][act] = (state.users[user][cat][act]||0)+pts;
-      tr.querySelector('.minutes').value = "";
-      tr.querySelector('.live-pts').textContent = "0";
-      updateAllDisplays();
+// -------------------- ENTER TAB --------------------
+const grandPointsEl = document.getElementById("grand-points");
+const grandTimeEl = document.getElementById("grand-time");
+const categories = document.querySelectorAll(".category[data-cat]");
+
+// Savings elements
+const savingsAdd = document.getElementById("savings-add");
+const savingsAddPts = document.getElementById("savings-add-pts");
+const savingsOverspend = document.getElementById("savings-overspend-entry");
+const savingsOverspendPts = document.getElementById("savings-overspend-pts");
+let totalSavings = 0;
+
+// --- ACTIVITY LIVE CALC ---
+categories.forEach(cat => {
+  const rows = cat.querySelectorAll("tbody tr");
+  rows.forEach(row => {
+    const minutesInput = row.querySelector(".minutes");
+    const livePtsEl = row.querySelector(".live-pts");
+    const rate = parseFloat(row.dataset.rate);
+
+    minutesInput.addEventListener("input", () => {
+      const mins = parseFloat(minutesInput.value) || 0;
+      const pts = Math.round((rate * mins) / 60);
+      livePtsEl.textContent = pts;
+
+      updateCategoryTotals(cat);
+      updateGrandTotals();
     });
   });
 });
 
-// ===== CATEGORY / GRAND TOTALS =====
-function updateCategoryTotals(){
-  const user = getSelectedUser();
-  document.querySelectorAll('.category').forEach(catEl=>{
-    const cat = catEl.dataset.cat;
-    if(cat==="Savings") return;
-    const sumPts = Object.values(state.users[user][cat]).reduce((a,b)=>a+b,0);
-    const sumTime = Object.values(state.users[user][cat]).reduce((a,b)=>a+b/parseNum(catEl.querySelector('tr[data-act]')?.dataset.rate||1)*60,0);
-    catEl.querySelector('.cat-points').textContent = Math.round(sumPts);
-    catEl.querySelector('.cat-time').textContent = Math.round(sumTime)+"m";
+function updateCategoryTotals(cat) {
+  let totalPts = 0;
+  let totalMins = 0;
+  const rows = cat.querySelectorAll("tbody tr");
+  rows.forEach(row => {
+    totalPts += parseInt(row.querySelector(".live-pts").textContent) || 0;
+    totalMins += parseFloat(row.querySelector(".minutes").value) || 0;
   });
-}
-function userTotals(user){
-  let totalPoints=0,totalTime=0;
-  ["Active","Reading","Arts","Homework"].forEach(cat=>{
-    totalPoints+=Object.values(state.users[user][cat]).reduce((a,b)=>a+b,0);
-  });
-  return { totalPoints, totalTime };
-}
-function updateGrandTotals(){
-  const user = getSelectedUser();
-  const ut = userTotals(user);
-  document.getElementById("grand-points").textContent = Math.round(ut.totalPoints);
-  document.getElementById("grand-time").textContent = Math.round(ut.totalTime)+"m";
+
+  cat.querySelector(".cat-points").textContent = totalPts;
+  cat.querySelector(".cat-time").textContent = totalMins + "m";
 }
 
-// ===== SAVINGS =====
-function updateSavingsPoints(){
-  const user = getSelectedUser();
-  const addInput = parseNum(document.getElementById("savings-add").value);
-  const overspendInput = parseNum(document.getElementById("savings-overspend-entry").value);
-  let addPoints = addInput*0.25;
-  let overspendPoints = overspendInput*0.5;
-  let pointsToAdd = addPoints>=80?addPoints:0;
-  document.getElementById("savings-add-pts").textContent = Math.round(addPoints);
-  document.getElementById("savings-overspend-pts").textContent = Math.round(overspendPoints);
-  const ut = userTotals(user);
-  document.getElementById("grand-points").textContent = Math.round(ut.totalPoints + pointsToAdd - overspendPoints);
+// --- SAVINGS LIVE CALC ---
+function updateSavingsLive() {
+  let addVal = parseFloat(savingsAdd.value) || 0;
+  let addPts = addVal * 0.25;
+  savingsAddPts.textContent = Math.round(addPts);
+
+  let overspendVal = parseFloat(savingsOverspend.value) || 0;
+  let overspendPts = overspendVal * 0.5;
+  savingsOverspendPts.textContent = Math.round(overspendPts);
+
+  updateGrandTotals();
 }
-document.getElementById("savings-add").addEventListener("input", updateSavingsPoints);
-document.getElementById("savings-overspend-entry").addEventListener("input", updateSavingsPoints);
-document.getElementById("commit-savings").addEventListener("click", ()=>{
-  const user = getSelectedUser();
-  const addInput = parseNum(document.getElementById("savings-add").value);
-  const overspendInput = parseNum(document.getElementById("savings-overspend-entry").value);
-  let addPoints = addInput*0.25;
-  let overspendPoints = overspendInput*0.5;
-  if(addPoints>=80){
-    state.users[user].savings.current += addInput;
-  }
-  state.users[user].savings.overspend += overspendInput;
-  document.getElementById("savings-current").value = state.users[user].savings.current;
-  document.getElementById("savings-add").value="";
-  document.getElementById("savings-overspend-entry").value="";
-  updateAllDisplays();
-});
 
-// ===== RESET BUTTONS =====
-document.getElementById("reset-user").addEventListener("click", ()=>{
-  const user = getSelectedUser();
-  state.users[user] = { Active: {}, Reading: {}, Arts: {}, Homework: {}, savings: {current:0, overspend:0}};
-  updateAllDisplays();
-});
-document.getElementById("reset-all").addEventListener("click", ()=>{
-  Object.keys(state.users).forEach(u=>{
-    state.users[u] = { Active: {}, Reading: {}, Arts: {}, Homework: {}, savings: {current:0, overspend:0}};
+savingsAdd.addEventListener("input", updateSavingsLive);
+savingsOverspend.addEventListener("input", updateSavingsLive);
+
+// --- GRAND TOTALS ---
+function updateGrandTotals() {
+  let totalPts = 0;
+  let totalTime = 0;
+
+  categories.forEach(cat => {
+    totalPts += parseInt(cat.querySelector(".cat-points").textContent) || 0;
+    let mins = parseFloat(cat.querySelector(".cat-time").textContent) || 0;
+    totalTime += mins;
   });
-  updateAllDisplays();
+
+  // Savings
+  let addPts = parseFloat(savingsAdd.value) || 0;
+  addPts = addPts * 0.25;
+  if (addPts >= 80) totalPts += Math.round(addPts);
+
+  let overspendPts = parseFloat(savingsOverspend.value) || 0;
+  overspendPts = overspendPts * 0.5;
+  totalPts -= Math.round(overspendPts);
+
+  grandPointsEl.textContent = totalPts;
+  grandTimeEl.textContent = totalTime + "m";
+}
+
+// --- RESET CONTROLS ---
+document.getElementById("reset-user").addEventListener("click", () => {
+  const selectedUser = document.querySelector("input[name=user]:checked").value;
+  categories.forEach(cat => {
+    const rows = cat.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      row.querySelector(".minutes").value = "";
+      row.querySelector(".live-pts").textContent = "0";
+      updateCategoryTotals(cat);
+    });
+  });
+  savingsAdd.value = "";
+  savingsOverspend.value = "";
+  updateSavingsLive();
 });
 
-// INITIAL UPDATE
-updateAllDisplays();
+document.getElementById("reset-all").addEventListener("click", () => {
+  categories.forEach(cat => {
+    const rows = cat.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      row.querySelector(".minutes").value = "";
+      row.querySelector(".live-pts").textContent = "0";
+      updateCategoryTotals(cat);
+    });
+  });
+  savingsAdd.value = "";
+  savingsOverspend.value = "";
+  updateSavingsLive();
+});
+
+// -------------------- PROGRESS TAB --------------------
+function updateProgressBars() {
+  const activePts = parseInt(document.querySelector('[data-cat="Active"] .cat-points').textContent) || 0;
+  const readingPts = parseInt(document.querySelector('[data-cat="Reading"] .cat-points').textContent) || 0;
+  const artsPts = parseInt(document.querySelector('[data-cat="Arts"] .cat-points').textContent) || 0;
+  const homeworkPts = parseInt(document.querySelector('[data-cat="Homework"] .cat-points').textContent) || 0;
+  const savingsVal = parseFloat(savingsAdd.value) || 0;
+  const savingsPts = savingsVal * 0.25;
+
+  const totalGoal = parseFloat(document.getElementById("total-goal")?.value) || 100;
+
+  document.getElementById("bar-active").style.width = `${Math.min((activePts / (totalGoal / 4)) * 100, 100)}%`;
+  document.getElementById("progress-active-val").textContent = activePts + " pts";
+
+  document.getElementById("bar-reading").style.width = `${Math.min((readingPts / (totalGoal / 4)) * 100, 100)}%`;
+  document.getElementById("progress-reading-val").textContent = readingPts + " pts";
+
+  document.getElementById("bar-arts").style.width = `${Math.min((artsPts / (totalGoal / 4)) * 100, 100)}%`;
+  document.getElementById("progress-arts-val").textContent = artsPts + " pts";
+
+  document.getElementById("bar-homework").style.width = `${Math.min((homeworkPts / (totalGoal / 4)) * 100, 100)}%`;
+  document.getElementById("progress-homework-val").textContent = homeworkPts + " pts";
+
+  document.getElementById("bar-savings").style.width = `${Math.min((savingsPts / totalGoal) * 100, 100)}%`;
+  document.getElementById("progress-savings-val").textContent = Math.round(savingsPts);
+}
+
+// Update progress bars whenever totals change
+["input", "change"].forEach(evt => {
+  categories.forEach(cat => {
+    const rows = cat.querySelectorAll("tbody tr");
+    rows.forEach(row => row.querySelector(".minutes").addEventListener(evt, updateProgressBars));
+  });
+  savingsAdd.addEventListener(evt, updateProgressBars);
+  savingsOverspend.addEventListener(evt, updateProgressBars);
+});
+
+// Initial call
+updateProgressBars();
+
+// -------------------- FINAL GOALS TAB --------------------
+const finalPointsBars = document.querySelectorAll(".final-bar");
+function updateFinalBars() {
+  const totalPts = parseInt(grandPointsEl.textContent) || 0;
+  const totalSavingsVal = parseFloat(savingsAdd.value) || 0;
+  const totalSavingsPts = totalSavingsVal * 0.25;
+
+  // example: each bar has 10 sections out of 6000
+  document.querySelectorAll(".final-bar.points").forEach(bar => {
+    bar.style.width = `${Math.min((totalPts / 6000) * 100, 100)}%`;
+  });
+
+  document.querySelectorAll(".final-bar.savings").forEach(bar => {
+    bar.style.width = `${Math.min((totalSavingsPts / 6000) * 100, 100)}%`;
+  });
+}
+setInterval(updateFinalBars, 500);
