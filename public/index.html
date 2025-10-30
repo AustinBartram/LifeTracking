@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tracker — Enter / Progress / Final Goals</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Tracker</h1>
+    <nav class="tabs">
+      <button class="tab-btn active" data-target="enter">Enter</button>
+      <button class="tab-btn" data-target="progress">Progress</button>
+      <button class="tab-btn" data-target="final">Final Goals</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ENTER TAB -->
+    <section id="enter" class="tab-panel active">
+      <div class="top-row">
+        <div class="user-select">
+          <label><input type="radio" name="user" value="Emma" /> Emma</label>
+          <label><input type="radio" name="user" value="Austin" checked /> Austin</label>
+        </div>
+        <div class="grand-totals">
+          <div>Total Points: <span id="grand-points">0</span></div>
+          <div>Total Time: <span id="grand-time">0m</span></div>
+        </div>
+      </div>
+
+      <!-- Category: Active -->
+      <div class="category card" data-cat="Active">
+        <div class="cat-header">
+          <h2>Active</h2>
+          <div class="cat-totals">Time: <span class="cat-time">0m</span> — Points: <span class="cat-points">0</span></div>
+        </div>
+        <table class="activity-table">
+          <thead><tr><th>Activity</th><th>Pts/hr</th><th>Time (min)</th><th>Pts (live)</th><th></th></tr></thead>
+          <tbody>
+            <tr data-act="Hiking" data-rate="8"><td>Hiking</td><td>8</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Walking" data-rate="4"><td>Walking</td><td>4</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Gym" data-rate="10"><td>Gym</td><td>10</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Biking" data-rate="6"><td>Biking</td><td>6</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Swimming" data-rate="9"><td>Swimming</td><td>9</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Category: Reading -->
+      <div class="category card" data-cat="Reading">
+        <div class="cat-header">
+          <h2>Reading</h2>
+          <div class="cat-totals">Time: <span class="cat-time">0m</span> — Points: <span class="cat-points">0</span></div>
+        </div>
+        <table class="activity-table">
+          <thead><tr><th>Activity</th><th>Pts/hr</th><th>Time (min)</th><th>Pts (live)</th><th></th></tr></thead>
+          <tbody>
+            <tr data-act="Graphic" data-rate="3"><td>Graphic</td><td>3</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Novel" data-rate="5"><td>Novel</td><td>5</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Scholar" data-rate="7"><td>Scholar</td><td>7</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Category: Arts -->
+      <div class="category card" data-cat="Arts">
+        <div class="cat-header">
+          <h2>Arts</h2>
+          <div class="cat-totals">Time: <span class="cat-time">0m</span> — Points: <span class="cat-points">0</span></div>
+        </div>
+        <table class="activity-table">
+          <thead><tr><th>Activity</th><th>Pts/hr</th><th>Time (min)</th><th>Pts (live)</th><th></th></tr></thead>
+          <tbody>
+            <tr data-act="Art" data-rate="6"><td>Art</td><td>6</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Civics" data-rate="4"><td>Civics</td><td>4</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Category: Homework -->
+      <div class="category card" data-cat="Homework">
+        <div class="cat-header">
+          <h2>Homework</h2>
+          <div class="cat-totals">Time: <span class="cat-time">0m</span> — Points: <span class="cat-points">0</span></div>
+        </div>
+        <table class="activity-table">
+          <thead><tr><th>Activity</th><th>Pts/hr</th><th>Time (min)</th><th>Pts (live)</th><th></th></tr></thead>
+          <tbody>
+            <tr data-act="Homework" data-rate="7"><td>Homework</td><td>7</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+            <tr data-act="Study" data-rate="8"><td>Study</td><td>8</td><td><input class="minutes" type="number" min="0" step="1" /></td><td class="live-pts">0</td><td><button class="add">Add</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Savings card -->
+      <div class="category card" data-cat="Savings">
+        <div class="cat-header">
+          <h2>Savings</h2>
+          <div class="cat-totals">Saved: $<span class="cat-savings">0</span></div>
+        </div>
+        <div class="savings-row">
+          <label>Current $ <input id="savings-current" type="number" min="0" step="1" /></label>
+          <label>Add to Savings $ <input id="savings-add" type="number" min="0" step="1" /></label>
+          <span>Pts: <span id="savings-add-pts">0</span></span>
+          <label>Overspend $ <input id="savings-overspend-entry" type="number" min="0" step="1" /></label>
+          <span>Pts: <span id="savings-overspend-pts">0</span></span>
+          <button id="commit-savings">Add</button>
+        </div>
+      </div>
+
+      <div class="card small">
+        <h3>Quick Controls</h3>
+        <button id="reset-user">Reset selected user's data</button>
+        <button id="reset-all">Reset ALL data</button>
+      </div>
+    </section>
+
+    <!-- PROGRESS TAB -->
+    <section id="progress" class="tab-panel">
+      <div class="progress-grid">
+        <div class="card">
+          <h2>Category Progress (selected user)</h2>
+          <div class="progress-item">
+            <label>Active: <span id="progress-active-val">0 pts</span></label>
+            <div class="progress"><div class="bar" id="bar-active" style="width:0%"></div></div>
+          </div>
+          <div class="progress-item">
+            <label>Reading: <span id="progress-reading-val">0 pts</span></label>
+            <div class="progress"><div class="bar" id="bar-reading" style="width:0%"></div></div>
+          </div>
+          <div class="progress-item">
+            <label>Arts: <span id="progress-arts-val">0 pts</span></label>
+            <div class="progress"><div class="bar" id="bar-arts" style="width:0%"></div></div>
+          </div>
+          <div class="progress-item">
+            <label>Homework: <span id="progress-homework-val">0 pts</span></label>
+            <div class="progress"><div class="bar" id="bar-homework" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Savings Progress</h2>
+          <p>Current: $<span id="progress-savings-val">0</span></p>
+          <div class="progress"><div class="bar" id="bar-savings" style="width:0%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL TAB -->
+    <section id="final" class="tab-panel">
+      <div class="card">
+        <h2>Final Goals / Total Points</h2>
+        <p>Total Points: <span id="final-total">0</span></p>
+        <p>Total Time: <span id="final-time">0m</span></p>
+        <p>Savings: $<span id="final-savings">0</span></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
